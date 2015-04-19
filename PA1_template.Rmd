@@ -139,11 +139,12 @@ avwkdays <- as.data.frame(avwkday)
 avwkends$interval <- rownames(avwkend)
 avwkdays$interval <- rownames(avwkday)
 
-par(mfrow = c(2, 1))
+#par(mfrow = c(2, 1), width = 480, height = 1000)
 
-plot(avwkends$interval, avwkends$av, type="l",xlab="Interval", ylab="Number of Steps")
-plot(avwkdays$interval, avwkdays$av, type="l",xlab="Interval", ylab="Number of Steps")
+plot(avwkends$interval, avwkends$av, type="l",main="Weekend", xlab="Interval", ylab="Number of Steps")
+plot(avwkdays$interval, avwkdays$av, type="l",main="Weekday",xlab="Interval", ylab="Number of Steps")
 
 
 ```
 
+__Conclusion :- __ Graphs on weekend vs weekday clearly shows that there is more activity during weekend.
