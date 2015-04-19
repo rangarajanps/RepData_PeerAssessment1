@@ -8,18 +8,82 @@ output:
 
 ## Loading and preprocessing the data
 
+```{r, results="hide"}
+df <- read.csv("activity.csv")
+```
 
+Above line reads and creates a data frmae for processing the csv file
 
 ## What is mean total number of steps taken per day?
 
+A. Calculating the total number of steps taken per day
 
+1) Total number of steps taken per day is calculated by using tapply calling sum of steps with date as factor.
+2) tapply provides the result as an array.
+3) This is converted to data frame using as.date.frame function
+
+```{r, results="hide"}
+stepsPerDay <- tapply(df$steps, df$date, FUN=sum, na.rm=TRUE)
+res <- as.data.frame(stepsPerDay)
+```
+
+B. Histogram of the total number of steps taken each day
+
+```{r}
+hist(res$stepsPerDay,main="Histogram of steps taken each day",xlab="Number of Steps")
+```
+
+C. Calculating and reporting the mean and median of the total number of steps taken per day
+
+```{r, results="hide"}
+meansteps <- mean(res$stepsPerDay)
+medsteps <- median(res$stepsPerDay)
+```
+
+Mean of total number of steps taken per day is `r meansteps`.
+Median of total number of steps taken per day is `r medsteps`.
 
 ## What is the average daily activity pattern?
 
+1. Make a time series plot (i.e. type = "l" ) of the 5 minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
+```{r}
+av <- tapply(df$steps, df$interval, FUN=mean, na.rm=TRUE)
+avs <- as.data.frame(av)
+avs$interval <- rownames(av)
+plot(avs$interval, avs$av, type="l",xlab="Interval", ylab="Number of Steps")
+```
+
+2. Which 5 minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+
+```{r, results="hide"}
+maxav <- max(avs$av, na.rm=TRUE)
+maxdf <- avs[avs$av==maxav,]
+maxintervl <- maxdf[1,2]
+```
+
+Interval with max number of steps is `r maxintervl`
 
 ## Imputing missing values
 
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+1. Created a new factor variable dayType in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
+
+```{r, results="hide"}
+# Using weekdays built-in function find the day of the week
+# if it starts with S i.e. Saturday or Sunday, categorize as weekend, else weekday
+
+finddaytype <- function(x) {
+  ifelse (grepl("^S",weekdays(as.Date(x,'%Y-%m-%d'))) == 1,"weekend","weekday")
+}
+
+# Using lapply, execute this function for the list of all dates i.e. date column in the data frame
+df$dayType <- lapply(df$date,finddaytype)
+
+```
+
+
+2. A panel plot containing a time series plot (i.e. type = "l" ) of the 5 minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
