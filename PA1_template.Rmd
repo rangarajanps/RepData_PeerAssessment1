@@ -66,7 +66,44 @@ Interval with max number of steps is `r maxintervl`
 
 ## Imputing missing values
 
+1. Total number of missing values in the dataset (i.e. the total number of rows with NAs)
 
+```{r}
+sum(is.na(df$steps))
+```
+
+2. Approach for handling NAs
+
+When I executed the below code, it was observed that 288 intervals are reported for each date.
+
+```{r, results="hide"}
+library("plyr")
+count(df$date)
+```
+
+When I executed the below code, it was observed that 8 dates contained all 288 intervals filled with NAs.
+
+```{r}
+count(df$date[is.na(df$steps)])
+```
+
+Since 8 dates did not have value, mean will vary if denominator decreases. Hence decided to check how the values differ if these dates were removed from the data set for analysis.
+
+3. Created a new dataset by removing NA value rows from the table
+
+```{r, results="hide"}
+cdf <- na.omit(df)
+```
+
+4. Histogram of the total number of steps taken each day
+
+```{r}
+uptdsteps <- tapply(cdf$steps, cdf$date, FUN=sum, na.rm=TRUE)
+reslt <- as.data.frame(uptdsteps)
+hist(reslt$uptdsteps,main="Histogram of steps taken each day in revised data set",xlab="Number of Steps")
+```
+
+while comparing the initial one, total number of steps seems to be reduced.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
@@ -87,3 +124,26 @@ df$dayType <- lapply(df$date,finddaytype)
 
 
 2. A panel plot containing a time series plot (i.e. type = "l" ) of the 5 minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
+
+```{r}
+wkendf <- df[df$dayType=="weekend",]
+wkdayf <- df[df$dayType=="weekday",]
+
+avwkend <- tapply(wkendf$steps, wkendf$interval, FUN=mean, na.rm=TRUE)
+
+avwkday <- tapply(wkdayf$steps, wkdayf$interval, FUN=mean, na.rm=TRUE)
+
+avwkends <- as.data.frame(avwkend)
+avwkdays <- as.data.frame(avwkday)
+
+avwkends$interval <- rownames(avwkend)
+avwkdays$interval <- rownames(avwkday)
+
+par(mfrow = c(2, 1))
+
+plot(avwkends$interval, avwkends$av, type="l",xlab="Interval", ylab="Number of Steps")
+plot(avwkdays$interval, avwkdays$av, type="l",xlab="Interval", ylab="Number of Steps")
+
+
+```
+
